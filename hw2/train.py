@@ -73,11 +73,7 @@ def one_hot_encoding(file_path):
 def main():  
     train_x = one_hot_encoding(sys.argv[1])   
     train_y = np.genfromtxt(sys.argv[2], delimiter=',', encoding='big5')
-    train_y = train_y[1:]
-    
-    train_mean = np.mean(train_x[:,:24], axis=0)
-    train_std = np.std(train_x[:,:24], axis=0)
-    # train_x[:,:24] = (train_x[:,:24] - train_mean) / train_std 
+    train_y = train_y[1:]    
     train_x = feature_extraction(train_x, \
     ['PAY_0'])    
 
@@ -98,8 +94,6 @@ def main():
     ############## Probability Generative Model ##############
     clf = model.generative_model()
     weight, bias = clf.train(train_x,train_y)
-    np.savetxt("train_mean.csv", train_mean, delimiter=",") 
-    np.savetxt("train_std.csv", train_std, delimiter=",") 
     np.savetxt("weight.csv", weight, delimiter=",") 
     np.savetxt("bias.csv", [bias], delimiter=",") 
     

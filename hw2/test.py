@@ -71,13 +71,10 @@ def one_hot_encoding(file_path):
     return feature
     
 def main():   
-    train_mean = np.genfromtxt("train_mean.csv", delimiter=',')
-    train_std = np.genfromtxt("train_std.csv", delimiter=',')
     bias = np.genfromtxt("bias.csv", delimiter=',')
     weight = np.genfromtxt("weight.csv", delimiter=',')
     
     test_x = one_hot_encoding(sys.argv[3]) 
-    # test_x[:,:24] = (test_x[:,:24]-train_mean)/train_std
     test_x = feature_extraction(test_x,  \
     ['PAY_0'])    
    
