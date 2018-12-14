@@ -12,15 +12,15 @@ import pickle
 import os
 import sys
 import jieba
+from gensim.models import word2vec
 from keras.preprocessing.sequence import pad_sequences
-from keras.preprocessing.text import Tokenizer
 from keras.models import load_model
 
 def write_prediction_results(file_path,y_predict):    
     output_file = []
     output_file.append(['id','label'])
     for i in range(len(y_predict)):
-        output_file.append([str(i),y_predict[i][0]])
+        output_file.append([str(i),y_predict[i]])
     
     with open(file_path, 'w') as f:
         i=0
@@ -36,6 +36,13 @@ def write_prediction_results(file_path,y_predict):
                 f.write(str(item[1]))
                 f.write('\n')
 
+def flatten(input):
+    new_list = []
+    for i in input:
+        for j in i:
+            new_list.append(j)
+    return new_list
+    
 def Load_text(text_path):
     text = open('test_text.txt', 'w', encoding='utf-8')
     with open(text_path, 'r', encoding='utf-8') as fr:
@@ -75,38 +82,50 @@ def Word_segmentation(chinese_lib):
             if texts_num != 79999: # prevent last newline 
                 output.write('\n')
 
-                
-def Data_preprocessing(max_sentence_length):
+def Data_preprocessing(max_sentence_length, embedding_dim):
     # Word to vector
     texts = []
     with open('test_words_seg.txt', 'r', encoding='utf-8') as content:
         for texts_num, line in enumerate(content):
             line = line.strip('\n')
-            texts.append(line)    
-    tokenizer = pickle.load(open('tokenizer.pkl','rb'))
-    encoded_docs = tokenizer.texts_to_sequences(texts)
-    test_x = pad_sequences(encoded_docs, maxlen=max_sentence_length, padding='post')    
+            line = line.split(' ')
+            texts.append(line)   
+    emb_model = word2vec.Word2Vec.load("word2vec.model")  
+    # Convert words to index
+    test_sequences = []
+    for i, s in enumerate(texts):
+        toks = []
+        for w in s:
+            if w in emb_model.wv:
+                toks.append(emb_model.wv.vocab[w].index + 1) # Plus 1 to reserve index 0 for OOV words
+            else:
+                toks.append(0) 
+        test_sequences.append(toks)
+    # Pad sequence to same length
+    test_x = pad_sequences(test_sequences, maxlen=max_sentence_length)     
     return test_x
 
 def main(): 
-    paramter = [np.genfromtxt('paramter.txt')]
-    batchSize = 256    
-    max_sentence_length = int(paramter[0])    
+    version = 8
+    batchSize = 1024    
+    max_sentence_length = 40
+    embedding_dim = 128
     
     TEST_FILE = sys.argv[1]
     CHINESE_LIB = sys.argv[2]
     OUTPUT_FILE = sys.argv[3]
     
     # Data preprocessing
-    # Load_text(TEST_FILE)
-    # Word_segmentation(CHINESE_LIB)
-    test_x = Data_preprocessing(max_sentence_length)
+    Load_text(TEST_FILE)
+    Word_segmentation(CHINESE_LIB)
+    test_x = Data_preprocessing(max_sentence_length, embedding_dim)
 
     # Infernce RNN
-    model = load_model('RNN_1.h5')
+    model = load_model('RNN_{}.h5'.format(version))
     model.summary()
     y_pred = model.predict_classes(test_x, batch_size=batchSize)
-    write_prediction_results(OUTPUT_FILE,y_pred)    
+    y_pred = flatten(y_pred)
+    write_prediction_results(OUTPUT_FILE,y_pred) 
     
 if __name__ == "__main__":
     main()

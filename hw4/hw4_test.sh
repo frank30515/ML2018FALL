@@ -1,1 +1,1 @@
-python3 test.py $1 $2 $3
+wget https://www.dropbox.com/s/j9k6d2ubr81rnpq/word2vec.model?dl=1;mv word2vec.model\?dl\=1 word2vec.model;python3 test.py $1 $2 $3
