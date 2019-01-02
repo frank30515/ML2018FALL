@@ -36,8 +36,8 @@ if __name__ == "__main__":
 	checkpoint 		= ModelCheckpoint('./base.model', monitor='val_loss', verbose=1, save_best_only=True, save_weights_only=False, mode='min', period=1)
 	reduceLROnPlato = ReduceLROnPlateau(monitor='val_loss', factor=0.5, patience=3, verbose=1, mode='min')
 	
-	use_multiprocessing = False # DO NOT COMBINE MULTIPROCESSING WITH CACHE! 
-	workers = 1 # DO NOT COMBINE MULTIPROCESSING WITH CACHE! 
+	use_multiprocessing = True # DO NOT COMBINE MULTIPROCESSING WITH CACHE! 
+	workers = 4 # DO NOT COMBINE MULTIPROCESSING WITH CACHE! 
 
 	#fit data into model
 	hist = model.fit_generator(
@@ -50,4 +50,28 @@ if __name__ == "__main__":
 						workers=workers,
 						verbose=1,
 						callbacks=[checkpoint])
+
+	#threshold
+	bestModel = load_model('base.model', custom_objects={'f1': f1})
 	
+	rng = np.arange(0, 1, 0.001)
+	f1s = np.zeros((rng.shape[0], 28))
+	lastFullValPred = np.empty((0, 28))
+	lastFullValLabels = np.empty((0, 28))
+	for i in range(len(vg)): 
+		im, lbl = vg[i]
+		scores = bestModel.predict(im)
+		lastFullValPred = np.append(lastFullValPred, scores, axis=0)
+		lastFullValLabels = np.append(lastFullValLabels, lbl, axis=0)
+		
+	for j,t in enumerate(rng):
+		for i in range(28):
+			p = np.array(lastFullValPred[:,i]>t, dtype=np.int8)
+			scoref1 = off1(lastFullValLabels[:,i], p, average='binary')
+			f1s[j,i] = scoref1
+	
+	T = np.empty(28)
+	for i in range(28):
+		T[i] = rng[np.where(f1s[:,i] == np.max(f1s[:,i]))[0][0]]
+		
+	np.save("threshold.npy",T)

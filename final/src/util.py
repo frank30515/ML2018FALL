@@ -8,7 +8,7 @@ import os
 #			: 2.one-hot labels (sample no * total class)
 def getTrainDataset():
 
-	path_to_train = '../train/'
+	path_to_train = '../../../../final/train/'
 	data = pd.read_csv('train.csv')
 
 	paths = []
@@ -29,7 +29,7 @@ def getTrainDataset():
 #			: 2.zeros
 def getTestDataset():
 
-	path_to_test = '../test/'
+	path_to_test = '../../../../final/test/'
 	data = pd.read_csv('sample_submission.csv')
 
 	paths = []

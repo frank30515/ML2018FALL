@@ -17,25 +17,7 @@ if __name__ == "__main__":
 	#load model
 	bestModel = load_model('./base.model', custom_objects={'f1': f1}) #, 'f1_loss': f1_loss})
 	
-	rng = np.arange(0, 1, 0.001)
-	f1s = np.zeros((rng.shape[0], 28))
-	lastFullValPred = np.empty((0, 28))
-	lastFullValLabels = np.empty((0, 28))
-	for i in range(len(fullValGen)): 
-		im, lbl = fullValGen[i]
-		scores = bestModel.predict(im)
-		lastFullValPred = np.append(lastFullValPred, scores, axis=0)
-		lastFullValLabels = np.append(lastFullValLabels, lbl, axis=0)
-		
-	for j,t in enumerate(rng):
-		for i in range(28):
-			p = np.array(lastFullValPred[:,i]>t, dtype=np.int8)
-			scoref1 = off1(lastFullValLabels[:,i], p, average='binary')
-			f1s[j,i] = scoref1
-	
-	T = np.empty(28)
-	for i in range(28):
-		T[i] = rng[np.where(f1s[:,i] == np.max(f1s[:,i]))[0][0]]
+	T = np.load("threshold.npy")
 	
 	
 	
