@@ -10,6 +10,6 @@ class DefaultConfigs(object):
     channels = 4
     lr = 0.03
     batch_size = 31
-    epochs = 1
+    epochs = 50
 
 config = DefaultConfigs()
