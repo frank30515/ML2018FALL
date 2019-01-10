@@ -1,7 +1,11 @@
 # ML2018FALL
 
 ## Toolkits
-pip3 install pretrainedmodels
+torchvision  
+sklearn  
+imgaug  
+opencv-python  
+pretrainedmodels
 
 ## How to use
 ### Approach 1:
