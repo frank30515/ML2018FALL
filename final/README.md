@@ -32,7 +32,7 @@ $ bash train.sh
 4. Testing  
 $ bash test.sh
 
-5. Get the submission.csv in the same directory
+5. Get the inception_bestloss_submission.csv in the same directory
 
 ## Reference
 https://www.kaggle.com/c/human-protein-atlas-image-classification/discussion/75691
