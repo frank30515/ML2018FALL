@@ -5,7 +5,7 @@ pip3 install pretrainedmodels
 
 ## How to use
 ### Approach 1:
-1. Change the train_data (training data path) and test_data path (testing data path) in config.py
+1. Change the train_data (training data path) and test_data path (testing data path) in src/config.py
 
 2. Training and save model into checkpoints/best_models/  
 $ bash train.sh
